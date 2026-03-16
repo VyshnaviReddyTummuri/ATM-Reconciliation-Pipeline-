@@ -8,18 +8,18 @@ producer = KafkaProducer(
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 
-atm_ids = ["ATM001", "ATM002", "ATM003"]
-cards = ["CARD1001", "CARD1002", "CARD1003", "CARD1004"]
+topic_name = "atm-transactions"
 
-while True:
-    transaction = {
-        "atm_id": random.choice(atm_ids),
-        "card_id": random.choice(cards),
-        "amount": random.choice([100, 200, 300, 500]),
-        "timestamp": time.time()
-    }
+transactions = [
+    {"transaction_id": "TXN1001", "atm_id": "ATM001", "card_id": "CARD1001", "amount": 200, "transaction_time": "2026-03-13 10:00:00"},
+    {"transaction_id": "TXN1002", "atm_id": "ATM002", "card_id": "CARD1002", "amount": 500, "transaction_time": "2026-03-13 10:01:00"},
+    {"transaction_id": "TXN1003", "atm_id": "ATM003", "card_id": "CARD1003", "amount": 300, "transaction_time": "2026-03-13 10:02:00"},
+    {"transaction_id": "TXN9999", "atm_id": "ATM999", "card_id": "CARD9999", "amount": 1000, "transaction_time": "2026-03-13 10:09:00"}
+]
 
-    producer.send("atm_transactions", transaction)
-    print("Sent:", transaction)
-
+for txn in transactions:
+    producer.send(topic_name, txn)
+    print(f"Sent: {txn}")
     time.sleep(2)
+
+producer.flush()
