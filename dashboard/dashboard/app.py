@@ -2,30 +2,39 @@ import streamlit as st
 import pandas as pd
 import psycopg2
 
-st.title("ATM Transaction Reconciliation Dashboard")
-
+# DB connection
 conn = psycopg2.connect(
     host="localhost",
     database="atm_db",
     user="atm_user",
-    password="atm_pass"
+    password="atm_pass",
+    port=5432
 )
 
 query = "SELECT * FROM atm_reconciliation_results"
 df = pd.read_sql(query, conn)
 
-total_transactions = len(df)
+st.title("ATM Reconciliation Dashboard")
+
+# Metrics
+st.subheader("Summary Metrics")
+
+total = len(df)
 matched = len(df[df["reconciliation_status"] == "MATCHED"])
 mismatch = len(df[df["reconciliation_status"] == "AMOUNT_MISMATCH"])
-missing = len(df[df["reconciliation_status"] == "MISSING_IN_SETTLEMENT"])
+missing = len(df[df["reconciliation_status"].isin(["MISSING_IN_ATM", "MISSING_IN_SETTLEMENT"])])
+escalated = len(df[df["escalation_status"] == "ESCALATED"])
 
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3 = st.columns(3)
 
-col1.metric("Total Transactions", total_transactions)
+col1.metric("Total Transactions", total)
 col2.metric("Matched", matched)
-col3.metric("Amount Mismatch", mismatch)
-col4.metric("Missing Settlement", missing)
+col3.metric("Mismatched", mismatch)
 
-st.subheader("Reconciliation Status Distribution")
-status_counts = df["reconciliation_status"].value_counts()
-st.bar_chart(status_counts)
+col1, col2 = st.columns(2)
+
+col1.metric("Missing", missing)
+col2.metric("Escalated", escalated)
+
+st.subheader("Reconciliation Data")
+st.dataframe(df)

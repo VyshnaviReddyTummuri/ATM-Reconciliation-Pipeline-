@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, when, coalesce
+from pyspark.sql.functions import col, when, coalesce, current_date, datediff
 
 spark = SparkSession.builder \
     .appName("ATM Reconciliation Job") \
@@ -42,25 +42,41 @@ result_df = joined_df.select(
     col("s.amount").alias("settlement_amount"),
     col("a.transaction_time").alias("atm_transaction_time"),
     col("s.transaction_time").alias("settlement_transaction_time"),
-when(
-    col("a.transaction_id").isNotNull() &
-    col("s.transaction_id").isNotNull() &
-    (col("a.amount") == col("s.amount")),
-    "MATCHED"
-).when(
-    col("a.transaction_id").isNotNull() &
-    col("s.transaction_id").isNull(),
-    "MISSING_IN_SETTLEMENT"
-).when(
-    col("a.transaction_id").isNull() &
-    col("s.transaction_id").isNotNull(),
-    "MISSING_IN_ATM"
-).when(
-    col("a.transaction_id").isNotNull() &
-    col("s.transaction_id").isNotNull() &
-    (col("a.amount") != col("s.amount")),
-    "AMOUNT_MISMATCH"
-).alias("reconciliation_status")
+
+    # ✅ Reconciliation status
+    when(
+        col("a.transaction_id").isNotNull() &
+        col("s.transaction_id").isNotNull() &
+        (col("a.amount") == col("s.amount")),
+        "MATCHED"
+    ).when(
+        col("a.transaction_id").isNotNull() &
+        col("s.transaction_id").isNull(),
+        "MISSING_IN_SETTLEMENT"
+    ).when(
+        col("a.transaction_id").isNull() &
+        col("s.transaction_id").isNotNull(),
+        "MISSING_IN_ATM"
+    ).when(
+        col("a.transaction_id").isNotNull() &
+        col("s.transaction_id").isNotNull() &
+        (col("a.amount") != col("s.amount")),
+        "AMOUNT_MISMATCH"
+    ).alias("reconciliation_status")
+)
+
+# ✅ ADD THIS PART (Aging + Escalation)
+
+result_df = result_df.withColumn(
+    "age_days",
+    datediff(current_date(), col("atm_transaction_time"))
+)
+
+result_df = result_df.withColumn(
+    "escalation_status",
+    when(col("age_days") <= 1, "NORMAL")
+    .when((col("age_days") > 1) & (col("age_days") <= 3), "WARNING")
+    .otherwise("ESCALATED")
 )
 
 print("Result count:", result_df.count())
