@@ -1,58 +1,106 @@
 # ATM Transaction Reconciliation Pipeline
 
-## Overview
-This project simulates a real-time ATM transaction reconciliation system using Kafka and Spark. It processes ATM transactions, compares them with settlement records, and identifies mismatches such as missing transactions and amount differences.
+## 📌 Overview
+This project implements an end-to-end data pipeline to reconcile ATM transactions with settlement records using Apache Kafka and PySpark. It simulates real-time ingestion and batch reconciliation, ensuring data accuracy and identifying discrepancies.
 
 ---
 
-## Architecture
-ATM Producer → Kafka → Spark Streaming → PostgreSQL → Reconciliation Job → Streamlit Dashboard
+## ⚙️ Tech Stack
+- Python
+- Apache Kafka
+- PySpark (Streaming + Batch)
+- PostgreSQL
+- Docker
+- Streamlit (Dashboard)
+- Airflow (Scheduling)
+- GitHub Actions (CI/CD)
 
 ---
 
-## Tech Stack
-- Python  
-- Apache Kafka  
-- Apache Spark (PySpark)  
-- PostgreSQL  
-- Docker  
-- Streamlit  
+## 🏗️ Architecture
+- ATM transactions are generated using a Kafka producer
+- Kafka streams data into PySpark Structured Streaming
+- Data is stored in PostgreSQL (`atm_transactions`)
+- Settlement data is ingested as batch (CSV)
+- PySpark batch job performs reconciliation
+- Results stored in `atm_reconciliation_results`
+- Streamlit dashboard visualizes results
 
 ---
 
-## Use Cases
-- Detect mismatches between ATM transactions and settlement records  
-- Identify missing or failed ATM transactions  
-- Monitor reconciliation status in real-time  
-- Provide operational insights through dashboard visualization  
+## 🔍 Reconciliation Logic
+- MATCHED: ATM and settlement amounts match
+- MISSING_IN_SETTLEMENT: ATM record not found in settlement
+- MISSING_IN_ATM: Settlement record not found in ATM logs
+- AMOUNT_MISMATCH: Amounts differ
 
 ---
 
-## How to Run
-
-### 1. Start services
-docker-compose up
-
-### 2. Run ATM Producer
-python3 producer/atm_producer.py
-
-### 3. Run Spark Streaming Job
-spark-submit spark/atm_stream_processor.py
-
-### 4. Run Reconciliation Job
-spark-submit spark/atm_reconciliation_job.py
-
-### 5. Run Dashboard
-streamlit run dashboard/dashboard/app.py
+## ⏳ Exception Aging & Escalation
+- Age calculated using transaction timestamp
+- Escalation rules:
+  - 0–1 days → NORMAL
+  - 2–3 days → WARNING
+  - 3+ days → ESCALATED
 
 ---
 
-## Output
-- Transactions stored in PostgreSQL  
-- Reconciliation results generated  
-- Dashboard visualization available  
+## 📊 Dashboard
+- Displays total transactions
+- Shows matched, mismatched, and missing counts
+- Highlights escalated transactions
+- Built using Streamlit
 
 ---
 
-## Screenshots
-(Add dashboard and pipeline screenshots here)
+## 🔁 CI/CD with Jenkins
+
+A Jenkins pipeline is defined using a Jenkinsfile to automate the workflow.
+
+---
+
+### Pipeline Stages:
+- Checkout source code
+- Install dependencies
+- Run unit tests
+- Execute Spark reconciliation job
+
+This ensures continuous integration and validation of the data pipeline.
+
+---
+
+
+## 🚀 How to Run
+1. Start services:
+   docker-compose up -d
+
+2. Run reconciliation job:
+   docker exec -it atm-recon-spark-master /opt/spark/bin/spark-submit /spark/atm_reconciliation_job.py
+
+3. Launch dashboard:
+   streamlit run dashboard/app.py
+
+---
+
+
+## 📸 Screenshots
+
+### Dashboard
+![Dashboard](screenshots/dashboard.png)
+
+### Reconciliation Output
+![Reconciliation Output](screenshots/reconciliation_output.png)
+
+### Unit Test Results
+![Unit Tests](screenshots/unit_test_results.png)
+
+### Jenkins Pipeline
+![Jenkins Pipeline](screenshots/jenkins_pipeline.png)
+---
+
+## ✅ Key Outcomes
+- Built scalable reconciliation pipeline
+- Implemented real-time + batch processing
+- Identified discrepancies and escalations
+- Visualized insights through dashboard
+   docker-compose up -d
