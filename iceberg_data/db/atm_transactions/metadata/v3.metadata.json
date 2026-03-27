@@ -1,0 +1,122 @@
+{
+  "format-version" : 2,
+  "table-uuid" : "bf83d986-c31b-42b2-a54c-5516c806c7f8",
+  "location" : "file:///tmp/iceberg/db/atm_transactions",
+  "last-sequence-number" : 2,
+  "last-updated-ms" : 1774467418034,
+  "last-column-id" : 5,
+  "current-schema-id" : 0,
+  "schemas" : [ {
+    "type" : "struct",
+    "schema-id" : 0,
+    "fields" : [ {
+      "id" : 1,
+      "name" : "transaction_id",
+      "required" : false,
+      "type" : "string"
+    }, {
+      "id" : 2,
+      "name" : "atm_id",
+      "required" : false,
+      "type" : "string"
+    }, {
+      "id" : 3,
+      "name" : "card_id",
+      "required" : false,
+      "type" : "string"
+    }, {
+      "id" : 4,
+      "name" : "amount",
+      "required" : false,
+      "type" : "int"
+    }, {
+      "id" : 5,
+      "name" : "transaction_time",
+      "required" : false,
+      "type" : "string"
+    } ]
+  } ],
+  "default-spec-id" : 0,
+  "partition-specs" : [ {
+    "spec-id" : 0,
+    "fields" : [ ]
+  } ],
+  "last-partition-id" : 999,
+  "default-sort-order-id" : 0,
+  "sort-orders" : [ {
+    "order-id" : 0,
+    "fields" : [ ]
+  } ],
+  "properties" : {
+    "owner" : "spark",
+    "write.parquet.compression-codec" : "zstd"
+  },
+  "current-snapshot-id" : 6854604640436882218,
+  "refs" : {
+    "main" : {
+      "snapshot-id" : 6854604640436882218,
+      "type" : "branch"
+    }
+  },
+  "snapshots" : [ {
+    "sequence-number" : 1,
+    "snapshot-id" : 3305236942473012113,
+    "timestamp-ms" : 1774467417251,
+    "summary" : {
+      "operation" : "append",
+      "spark.app.id" : "local-1774467411993",
+      "spark.sql.streaming.epochId" : "0",
+      "spark.sql.streaming.queryId" : "9f1e016f-a638-477a-ae61-b09602435687",
+      "added-data-files" : "1",
+      "added-records" : "42",
+      "added-files-size" : "3130",
+      "changed-partition-count" : "1",
+      "total-records" : "42",
+      "total-files-size" : "3130",
+      "total-data-files" : "1",
+      "total-delete-files" : "0",
+      "total-position-deletes" : "0",
+      "total-equality-deletes" : "0"
+    },
+    "manifest-list" : "file:/tmp/iceberg/db/atm_transactions/metadata/snap-3305236942473012113-1-1f9c837f-78a9-4fbc-9925-7656f138a2da.avro",
+    "schema-id" : 0
+  }, {
+    "sequence-number" : 2,
+    "snapshot-id" : 6854604640436882218,
+    "parent-snapshot-id" : 3305236942473012113,
+    "timestamp-ms" : 1774467418034,
+    "summary" : {
+      "operation" : "append",
+      "spark.app.id" : "local-1774467411993",
+      "spark.sql.streaming.epochId" : "1",
+      "spark.sql.streaming.queryId" : "9f1e016f-a638-477a-ae61-b09602435687",
+      "added-data-files" : "1",
+      "added-records" : "2",
+      "added-files-size" : "1753",
+      "changed-partition-count" : "1",
+      "total-records" : "44",
+      "total-files-size" : "4883",
+      "total-data-files" : "2",
+      "total-delete-files" : "0",
+      "total-position-deletes" : "0",
+      "total-equality-deletes" : "0"
+    },
+    "manifest-list" : "file:/tmp/iceberg/db/atm_transactions/metadata/snap-6854604640436882218-1-40949380-10e9-4af7-8645-fb32b0386ae6.avro",
+    "schema-id" : 0
+  } ],
+  "statistics" : [ ],
+  "snapshot-log" : [ {
+    "timestamp-ms" : 1774467417251,
+    "snapshot-id" : 3305236942473012113
+  }, {
+    "timestamp-ms" : 1774467418034,
+    "snapshot-id" : 6854604640436882218
+  } ],
+  "metadata-log" : [ {
+    "timestamp-ms" : 1774466807608,
+    "metadata-file" : "file:/tmp/iceberg/db/atm_transactions/metadata/v1.metadata.json"
+  }, {
+    "timestamp-ms" : 1774467417251,
+    "metadata-file" : "file:/tmp/iceberg/db/atm_transactions/metadata/v2.metadata.json"
+  } ]
+}

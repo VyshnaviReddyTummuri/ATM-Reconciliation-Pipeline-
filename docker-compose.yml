@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
 
   zookeeper:
@@ -33,12 +35,10 @@ services:
     ports:
       - "7077:7077"
       - "8080:8080"
-    depends_on:
-      - kafka
     volumes:
       - ./spark:/spark
-      - ./producer:/producer
       - ./settlement:/settlement
+      - ./iceberg_data:/tmp/iceberg
 
   spark-worker:
     image: apache/spark:3.5.5
@@ -48,8 +48,8 @@ services:
       - spark-master
     volumes:
       - ./spark:/spark
-      - ./producer:/producer
       - ./settlement:/settlement
+      - ./iceberg_data:/tmp/iceberg
 
   postgres:
     image: postgres:15
@@ -63,22 +63,43 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  airflow:
+  airflow-webserver:
     image: apache/airflow:2.9.1
-    container_name: atm-recon-airflow
+    container_name: atm-recon-airflow-webserver
     depends_on:
       - postgres
     ports:
       - "8082:8080"
     environment:
-      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__FERNET_KEY=
+      - AIRFLOW__WEBSERVER__SECRET_KEY=mysecretkey
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://atm_user:atm_pass@postgres/atm_db
     volumes:
       - ./airflow/dags:/opt/airflow/dags
+      - ./spark:/spark
+      - /var/run/docker.sock:/var/run/docker.sock
     command: >
       bash -c "airflow db init &&
+               airflow users create --username airflow --password airflow --firstname admin --lastname admin --role Admin --email admin@example.com || true &&
                airflow webserver"
+
+  airflow-scheduler:
+    image: apache/airflow:2.9.1
+    container_name: atm-recon-airflow-scheduler
+    depends_on:
+      - airflow-webserver
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__FERNET_KEY=
+      - AIRFLOW__WEBSERVER__SECRET_KEY=mysecretkey
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://atm_user:atm_pass@postgres/atm_db
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./spark:/spark
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: airflow scheduler
 
 volumes:
   postgres_data:
