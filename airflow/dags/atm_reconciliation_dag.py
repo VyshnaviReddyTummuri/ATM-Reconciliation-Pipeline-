@@ -16,12 +16,11 @@ with DAG(
 
     run_reconciliation = BashOperator(
         task_id="run_spark_reconciliation",
-        bash_command="""
-docker exec atm-recon-spark-master /opt/spark/bin/spark-submit \
---packages org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.4.2 \
---conf spark.jars.ivy=/tmp/.ivy2 \
-/spark/atm_reconciliation_job.py
-"""
+        bash_command="""docker exec atm-recon-spark-master /opt/spark/bin/spark-submit \
+                        --packages org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.4.2 \
+                        --conf spark.jars.ivy=/tmp/.ivy2 \
+                        /spark/atm_reconciliation_job.py
+        """
     )
 
     end = BashOperator(

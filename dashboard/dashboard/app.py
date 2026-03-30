@@ -1,14 +1,30 @@
 import streamlit as st
 import pandas as pd
+import glob
 
-df = pd.read_csv("../recon_output_csv/part-00000-36627f27-586b-4dac-b774-fba3c3be792b-c000.csv")
+# Read CSV (handles dynamic file name)
+file = glob.glob("recon_output/part-*.csv")[0]
+df = pd.read_csv(file)
 
 st.title("ATM Reconciliation Dashboard")
 
-st.metric("Total", len(df))
-st.metric("Matched", len(df[df["reconciliation_status"]=="MATCHED"]))
-st.metric("Mismatch", len(df[df["reconciliation_status"]=="MISMATCHED"]))
-st.metric("Missing ATM", len(df[df["reconciliation_status"]=="MISSING_IN_ATM"]))
-st.metric("Missing Settlement", len(df[df["reconciliation_status"]=="MISSING_IN_SETTLEMENT"]))
+# Metrics
+total = len(df)
+matched = len(df[df["reconciliation_status"] == "MATCHED"])
+mismatch = len(df[df["reconciliation_status"] == "AMOUNT_MISMATCH"])
+missing = len(df[df["reconciliation_status"].str.contains("MISSING")])
+escalated = len(df[df["escalation_status"] == "ESCALATED"])
 
+st.subheader("Summary Metrics")
+
+col1, col2, col3 = st.columns(3)
+col1.metric("Total Transactions", total)
+col2.metric("Matched", matched)
+col3.metric("Mismatched", mismatch)
+
+col1, col2 = st.columns(2)
+col1.metric("Missing", missing)
+col2.metric("Escalated", escalated)
+
+st.subheader("Detailed Data")
 st.dataframe(df)

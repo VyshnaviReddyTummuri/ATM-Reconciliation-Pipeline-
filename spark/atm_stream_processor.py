@@ -4,10 +4,10 @@ from pyspark.sql.types import StructType, StructField, StringType, IntegerType
 
 # Create Spark Session with Iceberg Config
 spark = SparkSession.builder \
-    .appName("ATM Transaction Stream Processor") \
+    .appName("ATM Reconciliation Job") \
     .config("spark.sql.catalog.my_catalog", "org.apache.iceberg.spark.SparkCatalog") \
     .config("spark.sql.catalog.my_catalog.type", "hadoop") \
-    .config("spark.sql.catalog.my_catalog.warehouse", "file:///tmp/iceberg") \
+    .config("spark.sql.catalog.my_catalog.warehouse", "/opt/spark/work-dir/warehouse") \
     .getOrCreate()
 
 spark.sparkContext.setLogLevel("WARN")
